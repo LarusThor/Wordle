@@ -5,6 +5,7 @@ class Wordle:
     def __init__(self) -> None:
         self.secret_word_dict = self.word_into_dict(choice(self.word_bank_reader()))
         self.word_length = len(self.secret_word_dict)
+        self.num_guesses = self.word_length
 
     def word_into_dict(self, word):
         secret_word_dict = {}
@@ -52,7 +53,7 @@ class Wordle:
         print("Take a guess!")
         guess_word = input().lower()
         guess_counter = 0
-        while guess_counter < 5:
+        while guess_counter < self.num_guesses:
             validity_check = self.valid_guess(guess_word)
             if validity_check:
                 guess = self.check_guess(guess_word)
