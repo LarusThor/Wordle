@@ -4,7 +4,8 @@ from random import *
 class Wordle:
     def __init__(self) -> None:
         self.secret_word_dict = self.word_into_dict(choice(self.word_bank_reader()))
-        
+       
+
     def word_into_dict(self, word):
         secret_word_dict = {}
         index = 0
@@ -22,6 +23,12 @@ class Wordle:
                 i = i.rstrip()
                 word_list.append(i)
         return word_list
+    
+    def format_guess_str(self, word):
+        ret_str = ""
+        for letter in word:
+            ret_str += f"{letter} "
+        return ret_str
     
     def check_guess(self, word):
         guess_word = self.word_into_dict(word)
@@ -52,7 +59,7 @@ wordle = Wordle()
 print(wordle.secret_word_dict)
 print(wordle.check_guess("mrush"))
 
-
+print(len(wordle.secret_word_dict))
 
     
 
