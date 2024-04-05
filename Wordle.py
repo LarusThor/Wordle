@@ -1,18 +1,18 @@
 from random import *
-from BST import *
+
 
 class Wordle:
     def __init__(self) -> None:
-        pass
+        self.secret_word_dict = self.word_into_dict(choice(self.word_bank_reader()))
+        
+    def word_into_dict(self, word):
+        secret_word_dict = {}
+        index = 0
+        for letter in word:
+            secret_word_dict[index] = letter
+            index += 1
 
-    def display_word(self):
-        word = choice(self.word_bank_reader())
-        secret_word = BSTMap()
-        letter_counter = 0
-        for key in word:
-            secret_word.insert(key, letter_counter)
-            letter_counter += 1
-        return secret_word
+        return secret_word_dict
 
 
     def word_bank_reader(self):
@@ -22,9 +22,37 @@ class Wordle:
                 i = i.rstrip()
                 word_list.append(i)
         return word_list
+    
+    def check_guess(self, word):
+        guess_word = self.word_into_dict(word)
+        ret_str = ""
+        for index, letter in guess_word.items():    
+            if letter in self.secret_word_dict.values():
+                if self.secret_word_dict[index] == letter:
+                    ret_str += "C "   
+                else:
+                    ret_str += "c "      
+            else:
+                ret_str += "- "
+                
+        return ret_str
+                
+
+
+
+
+
+
+    def play_game(self):
+        pass
+
 
 wordle = Wordle()
 
-print(wordle.display_word())
+print(wordle.secret_word_dict)
+print(wordle.check_guess("mrush"))
+
+
+
     
 
