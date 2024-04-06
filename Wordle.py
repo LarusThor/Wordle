@@ -53,15 +53,31 @@ class Wordle:
         
         return ret_str
 
+    def word_length_input():
+        print("Enter length of word, must be 5, 6 or 7 letters.")
+        word_length = int(input("Input word length: "))
+        while word_length < 5 or word_length > 7:
+            word_length = int(input("Input word length: "))
+        return word_length
+
     def play_game(self):
         
+        total_score = 0
         game_input = input("Start new game? (Y/N): ").lower()
         while game_input == "y":
             no_guesses = int(input("Number of guesses: "))
-            word_length = int(input("Input word length: "))
-            self.play_round(no_guesses, word_length)
+            word_length = self.word_length_input()
+            total_score += self.play_round(no_guesses, word_length)
             game_input = input("Start new game? (Y/N): ").lower()
-
+        if word_length is 5:
+            with open('scores5.csv', 'a') as scores:
+                scores.write(str(total_score) + "\n")
+        elif word_length is 6:
+            with open('scores6.csv', 'a') as scores:
+                scores.write(str(total_score) + "\n")
+        elif word_length is 7:
+            with open('scores7.csv', 'a') as scores:
+                scores.write(str(total_score) + "\n")
 
     def play_round(self, no_guesses, word_length):
         self.word = Word(no_guesses, word_length)
@@ -79,7 +95,7 @@ class Wordle:
                 print(guess)
                 if guess == "C "* self.word.word_length:
                     print("You won!") 
-                    return
+                    return (self.word.word_length + 1) - guess_counter
             else:
                 print()
                 print(f"Not a valid guess, word must contain {word_length} letters")
