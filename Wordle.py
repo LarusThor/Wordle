@@ -1,3 +1,18 @@
+MAIN_MENU = """
+
+Select (H) for Highscore
+Select (P) for Play Game
+"""
+
+HIGH_SCORE_MENU = """
+
+Select (5) to view Highscore for 5 letter words
+Select (6) to view Highscore for 6 letter words
+Select (7) to view Highscore for 7 letter words
+
+Select (b) for back
+"""
+
 from random import *
 class Word:
     def __init__(self, no_guesses, word_length) -> None:
@@ -69,6 +84,34 @@ class Wordle:
         elif word_length == 7:
             with open('scores7.csv', 'a') as scores:
                 scores.write(f'{id}: {str(score)}' + "\n")
+    
+    def view_highscore(self):
+        
+        print(HIGH_SCORE_MENU)
+        choice = input()
+        while choice != "b".lower():
+            if choice != "b".lower():
+                print(self.high_score_reader(choice))
+            else:
+                choice = input()
+
+        return
+
+    def high_score_reader(self, word_length):
+        word_list = []
+        with open(f'scores{word_length}.csv', newline='') as wordbank:
+            for i in wordbank:
+                word_list.append(i)
+        
+        return (word_list)
+
+    def main_menu(self):
+        print(MAIN_MENU)
+        choice = input()
+        if choice == "h".lower():
+            self.view_highscore()
+        elif choice == "p".lower():
+            self.play_game()
 
     def play_game(self):
         
@@ -79,8 +122,10 @@ class Wordle:
             word_length = self.word_length_input()
             total_score += self.play_round(no_guesses, word_length)
             game_input = input("Start new game? (Y/N): ").lower()
-        id = input("Enter a ID for the scoreboard: ")
-        self.update_scoreboard(id, word_length, total_score)
+        if total_score > 0:
+            id = input("Enter a ID for the scoreboard: ")
+            self.update_scoreboard(id, word_length, total_score)
+        return
         
 
     def play_round(self, no_guesses, word_length):
@@ -99,7 +144,6 @@ class Wordle:
                 print(guess)
                 if guess == "C "* (self.word.word_length):
                     print("You won!")
-                    
                     return (self.word.word_length + 1) - guess_counter
             else:
                 print()
@@ -113,7 +157,7 @@ class Wordle:
 
 wordle = Wordle()
 
-wordle.play_game()
+wordle.main_menu()
 
     
 
