@@ -27,14 +27,14 @@ class Word:
 class Wordle:
     def __init__(self) -> None:
         self.word = None
-        
+
     def format_guess_str(self, word):
         ret_str = ""
         for letter in word:
             ret_str += f"{letter} "
         return ret_str
     
-    def valid_guess(self, guess):
+    def valid_guess(self, guess: str):
         if len(guess) == self.word.word_length and guess.isalpha():
             return True
         return False
@@ -50,11 +50,9 @@ class Wordle:
                     ret_str += "c "      
             else:
                 ret_str += "- "
-        
         return ret_str
 
     def play_game(self):
-        
         game_input = input("Start new game? (Y/N): ").lower()
         while game_input == "y":
             no_guesses = int(input("Number of guesses: "))
@@ -77,9 +75,9 @@ class Wordle:
                 print()
                 print(self.format_guess_str(guess_word))
                 print(guess)
-                if guess == "C "* self.word.word_length:
+                if guess == "C "* (self.word.word_length):
                     print("You won!") 
-                    return
+                    return 
             else:
                 print()
                 print(f"Not a valid guess, word must contain {word_length} letters")
