@@ -52,14 +52,36 @@ class Wordle:
                 ret_str += "- "
         return ret_str
 
+    def word_length_input(self):
+        print("Enter length of word, must be 5, 6 or 7 letters.")
+        word_length = int(input("Input word length: "))
+        while word_length < 5 or word_length > 7:
+            word_length = int(input("Input word length: "))
+        return word_length
+    
+    def update_scoreboard(self,id, word_length, score):
+        if word_length == 5:
+            with open('scores5.csv', 'a') as scores:
+                scores.write(f'{id}: {str(score)}' + "\n")
+        elif word_length == 6:
+            with open('scores6.csv', 'a') as scores:
+                scores.write(f'{id}: {str(score)}' + "\n")
+        elif word_length == 7:
+            with open('scores7.csv', 'a') as scores:
+                scores.write(f'{id}: {str(score)}' + "\n")
+
     def play_game(self):
+        
+        total_score = 0
         game_input = input("Start new game? (Y/N): ").lower()
         while game_input == "y":
             no_guesses = int(input("Number of guesses: "))
-            word_length = int(input("Input word length: "))
-            self.play_round(no_guesses, word_length)
+            word_length = self.word_length_input()
+            total_score += self.play_round(no_guesses, word_length)
             game_input = input("Start new game? (Y/N): ").lower()
-
+        id = input("Enter a ID for the scoreboard: ")
+        self.update_scoreboard(id, word_length, total_score)
+        
 
     def play_round(self, no_guesses, word_length):
         self.word = Word(no_guesses, word_length)
@@ -76,8 +98,9 @@ class Wordle:
                 print(self.format_guess_str(guess_word))
                 print(guess)
                 if guess == "C "* (self.word.word_length):
-                    print("You won!") 
-                    return 
+                    print("You won!")
+                    
+                    return (self.word.word_length + 1) - guess_counter
             else:
                 print()
                 print(f"Not a valid guess, word must contain {word_length} letters")
