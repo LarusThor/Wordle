@@ -27,6 +27,7 @@ class Word:
         self.no_guesses = no_guesses
 
     def word_bank_reader(self, word_length):
+        """ Adds word from wordbank to a list for implementation """
         word_list = []
         with open('wordbank.csv', newline='') as wordbank:
             for i in wordbank:
@@ -36,6 +37,7 @@ class Word:
         return word_list
     
     def word_into_dict(self, word):
+        """ Creates a dictionary for index and letter checking in wordle game """
         secret_score_dict = {}
         index = 0
         for letter in word:
@@ -49,17 +51,20 @@ class Wordle:
         self.word = None
 
     def format_guess_str(self, word):
+        """ Corrects format of users guess """
         ret_str = ""
         for letter in word:
             ret_str += f"{letter} "
         return ret_str
     
     def valid_guess(self, guess: str):
+        """ Check to see if length of guess word is correct and is only letters """
         if len(guess) == self.word.word_length and guess.isalpha():
             return True
         return False
     
     def check_guess(self, word):
+        """ Checks and gives feedback on correctness of users guess """
         guess_word = self.word.word_into_dict(word)
         ret_str = ""
         for index, letter in guess_word.items():    
@@ -73,6 +78,7 @@ class Wordle:
         return ret_str
 
     def word_length_input(self):
+        """ User chooses their word length between 5-7 letters """
         print("Enter length of word, must be 5, 6 or 7 letters.")
         word_length = int(input("Input word length: "))
         # word_length = int(input("Input word length: "))
@@ -81,6 +87,7 @@ class Wordle:
         return word_length
     
     def insert_into_scoreboard(self, word_length, score_dict:dict):
+        """ Adds new items into scoreboard from a sorted dictionary by values """
         with open(f'scores{word_length}.csv', 'w'):
             pass
 
@@ -90,7 +97,8 @@ class Wordle:
                 scores.write(f'{key}: {str(item)}' + "\n")
     
     def update_scoreboard(self,id, word_length, score):
-        
+        """ If scoreboard is full(5) it overwrites the scoreboard with new score
+         otherwise it appends it into the scoreboard """
         score_dict = self.check_scoreboard(id, score, word_length)
         if score_dict:
             self.insert_into_scoreboard(word_length, score_dict)
@@ -100,6 +108,8 @@ class Wordle:
 
 
     def check_scoreboard(self, id, incoming_score, word_length):
+        """ Creates a dictionary from the scores in the scoreboard, If length is less than capacity(5)
+        returns None otherwise it updates/adds a new score to the scoreboard and removes lowest """
         score_dict = {}
         with open(f'scores{word_length}.csv', newline='') as highscores:
             for score in highscores:
@@ -108,7 +118,7 @@ class Wordle:
                 score_dict[name] = int(number)
         
         if len(score_dict) < 5:
-            return
+            return 
         
         if len(score_dict) == 5:
             if min(score_dict.values()) > incoming_score:
@@ -170,7 +180,7 @@ class Wordle:
     def add_new_word(self):
         print("Enter a new word from 5 to 7 letters")
         new_word = input("Enter a valid word: ")
-        while len(new_word) > 7 or len(new_word) < 5:
+        while len(new_word) > 7 or len(new_word) < 5 or new_word is not new_word.isalpha():
             new_word = input("Enter a valid word: ")
         with open('wordbank.csv', 'a') as wordbank:
             wordbank.write(f"\n{new_word.lower()}")
