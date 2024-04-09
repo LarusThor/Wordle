@@ -1,16 +1,21 @@
 MAIN_MENU = """
-
+****************************
 Select (H) for Highscore
 Select (P) for Play Game
+Select (W) to add a new word
+
+Select (q) for quit
+****************************
 """
 
 HIGH_SCORE_MENU = """
-
+***********************************************
 Select (5) to view Highscore for 5 letter words
 Select (6) to view Highscore for 6 letter words
 Select (7) to view Highscore for 7 letter words
 
 Select (b) for back
+***********************************************
 """
 
 from random import *
@@ -76,6 +81,7 @@ class Wordle:
     
     def update_scoreboard(self,id, word_length, score):
         if word_length == 5:
+            self.check_scoreboard(score, word_length)
             with open('scores5.csv', 'a') as scores:
                 scores.write(f'{id}: {str(score)}' + "\n")
         elif word_length == 6:
@@ -84,6 +90,19 @@ class Wordle:
         elif word_length == 7:
             with open('scores7.csv', 'a') as scores:
                 scores.write(f'{id}: {str(score)}' + "\n")
+
+    def check_scoreboard(self, score, word_length):
+        word_list = []
+        with open(f'scores{word_length}.csv', newline='') as highscores:
+            for score in highscores:
+                word_list.append(score)
+        
+        if len(word_list) < 5:
+            return
+        
+        if len(word_list) == 5:
+            
+                 
     
     def view_highscore(self):
         
@@ -91,27 +110,61 @@ class Wordle:
         choice = input()
         while choice != "b".lower():
             if choice != "b".lower():
-                print(self.high_score_reader(choice))
-            else:
-                choice = input()
+                high_score = (self.high_score_reader(choice))
+                print(f"The highest score for {choice} letter word is: ")
+                print(high_score)
 
+            print(HIGH_SCORE_MENU)
+            choice = input()
         return
 
     def high_score_reader(self, word_length):
-        word_list = []
+        score_list = []
         with open(f'scores{word_length}.csv', newline='') as wordbank:
             for i in wordbank:
-                word_list.append(i)
+                i = i.rstrip()
+                score_list.append(i)
+
+        highest_score = 0
+        highest_player = ""
+        for score in score_list:
+            id, number = score.split(" ")
+            number = int(number)
+            if (number) > highest_score:
+                highest_score = number
+                highest_player = f"ID: {id} SCORE: {number}"
         
-        return (word_list)
+        
+        return highest_player
 
     def main_menu(self):
         print(MAIN_MENU)
         choice = input()
-        if choice == "h".lower():
-            self.view_highscore()
-        elif choice == "p".lower():
-            self.play_game()
+        while choice != "q".lower():
+            if choice == "h".lower():
+                self.view_highscore()
+            elif choice == "p".lower():
+                self.play_game()
+            elif choice == "w".lower():
+                self.add_new_word()
+            print(MAIN_MENU)
+            choice = input()
+
+    def add_new_word(self):
+        print("Enter a new word from 5 to 7 letters")
+        new_word = input("Enter a valid word: ")
+        while len(new_word) > 7 or len(new_word) < 5:
+            new_word = input("Enter a valid word: ")
+        with open('wordbank.csv', 'a') as wordbank:
+            wordbank.write(f"\n{new_word.lower()}")
+        return
+    
+    def id_validation(self):
+        id = input("Enter a ID for the scoreboard: ")
+        while " " in id:
+            print("Id cant contain spaces")
+            id = input("Enter a ID for the scoreboard: ")
+        return id
 
     def play_game(self):
         
@@ -123,7 +176,7 @@ class Wordle:
             total_score += self.play_round(no_guesses, word_length)
             game_input = input("Start new game? (Y/N): ").lower()
         if total_score > 0:
-            id = input("Enter a ID for the scoreboard: ")
+            id = self.id_validation()
             self.update_scoreboard(id, word_length, total_score)
         return
         
