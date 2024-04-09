@@ -22,7 +22,7 @@ from random import *
 class Word:
     def __init__(self, no_guesses, word_length) -> None:
         secret_word = choice(self.word_bank_reader(word_length))
-        self.secret_word_dict = self.word_into_dict(secret_word)
+        self.secret_score_dict = self.word_into_dict(secret_word)
         self.word_length = word_length
         self.no_guesses = no_guesses
 
@@ -36,13 +36,13 @@ class Word:
         return word_list
     
     def word_into_dict(self, word):
-        secret_word_dict = {}
+        secret_score_dict = {}
         index = 0
         for letter in word:
-            secret_word_dict[index] = letter.lower()
+            secret_score_dict[index] = letter.lower()
             index += 1
 
-        return secret_word_dict
+        return secret_score_dict
 
 class Wordle:
     def __init__(self) -> None:
@@ -63,8 +63,8 @@ class Wordle:
         guess_word = self.word.word_into_dict(word)
         ret_str = ""
         for index, letter in guess_word.items():    
-            if letter in self.word.secret_word_dict.values():
-                if self.word.secret_word_dict[index] == letter:
+            if letter in self.word.secret_score_dict.values():
+                if self.word.secret_score_dict[index] == letter:
                     ret_str += "C "   
                 else:
                     ret_str += "c "      
@@ -75,34 +75,56 @@ class Wordle:
     def word_length_input(self):
         print("Enter length of word, must be 5, 6 or 7 letters.")
         word_length = int(input("Input word length: "))
+        # word_length = int(input("Input word length: "))
         while word_length < 5 or word_length > 7:
             word_length = int(input("Input word length: "))
         return word_length
     
+    def insert_into_scoreboard(self, word_length, score_dict:dict):
+        with open(f'scores{word_length}.csv', 'w'):
+            pass
+
+        score_list = sorted(score_dict.items(), key=lambda x: x[1], reverse=True)
+        with open(f'scores{word_length}.csv', 'a', 'utf-8') as scores:
+            for (key, item) in score_list:
+                scores.write(f'{key}: {str(item)}' + "\n")
+    
     def update_scoreboard(self,id, word_length, score):
-        if word_length == 5:
-            self.check_scoreboard(score, word_length)
-            with open('scores5.csv', 'a') as scores:
-                scores.write(f'{id}: {str(score)}' + "\n")
-        elif word_length == 6:
-            with open('scores6.csv', 'a') as scores:
-                scores.write(f'{id}: {str(score)}' + "\n")
-        elif word_length == 7:
-            with open('scores7.csv', 'a') as scores:
+        
+        score_dict = self.check_scoreboard(id, score, word_length)
+        if score_dict:
+            self.insert_into_scoreboard(word_length, score_dict)
+        else:
+            with open(f'scores{word_length}.csv', 'a') as scores:
                 scores.write(f'{id}: {str(score)}' + "\n")
 
-    def check_scoreboard(self, score, word_length):
-        word_list = []
+
+    def check_scoreboard(self, id, incoming_score, word_length):
+        score_dict = {}
         with open(f'scores{word_length}.csv', newline='') as highscores:
             for score in highscores:
-                word_list.append(score)
+                name, number = score.split(" ")
+                name = name[:-1]
+                score_dict[name] = int(number)
         
-        if len(word_list) < 5:
+        if len(score_dict) < 5:
             return
         
-        if len(word_list) == 5:
+        if len(score_dict) == 5:
+            if min(score_dict.values()) > incoming_score:
+                return
             
-                 
+        key_to_remove = ""
+        for key, value in score_dict.items():
+            if value == min(score_dict.values()):
+                key_to_remove = key
+
+        score_dict.pop(key_to_remove)
+        score_dict[id] = incoming_score
+        return score_dict
+        
+                
+
     
     def view_highscore(self):
         
@@ -111,7 +133,7 @@ class Wordle:
         while choice != "b".lower():
             if choice != "b".lower():
                 high_score = (self.high_score_reader(choice))
-                print(f"The highest score for {choice} letter word is: ")
+                # print(f"The highest score for {choice} letter word is: ")
                 print(high_score)
 
             print(HIGH_SCORE_MENU)
@@ -122,20 +144,15 @@ class Wordle:
         score_list = []
         with open(f'scores{word_length}.csv', newline='') as wordbank:
             for i in wordbank:
-                i = i.rstrip()
                 score_list.append(i)
 
-        highest_score = 0
-        highest_player = ""
+        
+        ret_str = ""
         for score in score_list:
             id, number = score.split(" ")
-            number = int(number)
-            if (number) > highest_score:
-                highest_score = number
-                highest_player = f"ID: {id} SCORE: {number}"
+            ret_str += f"ID: {id[:-1]} SCORE: {number}"
         
-        
-        return highest_player
+        return ret_str
 
     def main_menu(self):
         print(MAIN_MENU)
@@ -169,12 +186,15 @@ class Wordle:
     def play_game(self):
         
         total_score = 0
+        word_length = None
         game_input = input("Start new game? (Y/N): ").lower()
         while game_input == "y":
             no_guesses = int(input("Number of guesses: "))
-            word_length = self.word_length_input()
+            if word_length is None:
+                word_length = self.word_length_input()
             total_score += self.play_round(no_guesses, word_length)
             game_input = input("Start new game? (Y/N): ").lower()
+
         if total_score > 0:
             id = self.id_validation()
             self.update_scoreboard(id, word_length, total_score)
@@ -183,7 +203,7 @@ class Wordle:
 
     def play_round(self, no_guesses, word_length):
         self.word = Word(no_guesses, word_length)
-        print(self.word.secret_word_dict)
+        print(self.word.secret_score_dict)
         guess_counter = 0
         while guess_counter < self.word.no_guesses:
             print("Take a guess!")
