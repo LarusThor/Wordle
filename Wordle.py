@@ -75,7 +75,7 @@ class Wordle:
     def word_length_input(self):
         print("Enter length of word, must be 5, 6 or 7 letters.")
         word_length = int(input("Input word length: "))
-        # word_length = int(input("Input word length: "))
+       
         while word_length < 5 or word_length > 7:
             word_length = int(input("Input word length: "))
         return word_length
@@ -85,7 +85,7 @@ class Wordle:
             pass
 
         score_list = sorted(score_dict.items(), key=lambda x: x[1], reverse=True)
-        with open(f'scores{word_length}.csv', 'a', 'utf-8') as scores:
+        with open(f'scores{word_length}.csv', 'a', encoding='utf-8') as scores:
             for (key, item) in score_list:
                 scores.write(f'{key}: {str(item)}' + "\n")
     
@@ -127,13 +127,13 @@ class Wordle:
 
     
     def view_highscore(self):
-        
+        """Highscore menu, while the user doesn't enter 'b'(for back), it allows the user
+        to view the high score for a given table"""
         print(HIGH_SCORE_MENU)
         choice = input()
-        while choice != "b".lower():
+        while choice != "b".lower() and  "5" <= choice <= "7":
             if choice != "b".lower():
                 high_score = (self.high_score_reader(choice))
-                # print(f"The highest score for {choice} letter word is: ")
                 print(high_score)
 
             print(HIGH_SCORE_MENU)
@@ -141,12 +141,12 @@ class Wordle:
         return
 
     def high_score_reader(self, word_length):
+        """Takes all the items from the high score table csv file, puts them into a list,
+        return a formatted string of all the highscores"""
         score_list = []
         with open(f'scores{word_length}.csv', newline='') as wordbank:
             for i in wordbank:
                 score_list.append(i)
-
-        
         ret_str = ""
         for score in score_list:
             id, number = score.split(" ")
@@ -168,6 +168,9 @@ class Wordle:
             choice = input()
 
     def add_new_word(self):
+        """Allows the user to enter a word containing between 5 and 7 letters, if the
+        word isn't of that length it prompts the user to try again"""
+
         print("Enter a new word from 5 to 7 letters")
         new_word = input("Enter a valid word: ")
         while len(new_word) > 7 or len(new_word) < 5:
@@ -177,6 +180,8 @@ class Wordle:
         return
     
     def id_validation(self):
+        """Checks if the id that the user enters contains any spaces"""
+
         id = input("Enter a ID for the scoreboard: ")
         while " " in id:
             print("Id cant contain spaces")
@@ -202,6 +207,9 @@ class Wordle:
         
 
     def play_round(self, no_guesses, word_length):
+        """Plays a round of the game, repeatedly allows the user to make a guess
+        until he runs out of guesses"""
+
         self.word = Word(no_guesses, word_length)
         print(self.word.secret_score_dict)
         guess_counter = 0
